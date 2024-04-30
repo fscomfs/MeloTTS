@@ -1,24 +1,15 @@
-# WebUI by mrfakename <X @realmrfakename / HF @mrfakename>
-# Demo also available on HF Spaces: https://huggingface.co/spaces/mrfakename/MeloTTS
-import os, torch, io
-# os.system('python -m unidic download')
-from flask import Flask, Response,request
-print("Make sure you've downloaded unidic (python -m unidic download) for this WebUI to work.")
+
+import io, os
+import hashlib
+from flask import Flask, Response, request
 from melo.api import TTS
 speed = 1.0
-import tempfile
-import click
 device = 'auto'
 models = {
-    'EN': TTS(language='EN', device=device),
-    'ES': TTS(language='ES', device=device),
-    'FR': TTS(language='FR', device=device),
-    'ZH': TTS(language='ZH', device=device),
-    'JP': TTS(language='JP', device=device),
-    'KR': TTS(language='KR', device=device),
+    'ZH': TTS(language='ZH', device=device,ckpt_path='./model/zh/checkpoint.pth',config_path='./model/zh/config.json'),
 }
-speaker_ids = models['EN'].hps.data.spk2id
-
+speaker_ids = models['ZH'].hps.data.spk2id
+cache_dir = "/data/chache/"
 default_text_dict = {
     'EN': 'The field of text-to-speech has seen rapid development recently.',
     'ES': 'El campo de la conversión de texto a voz ha experimentado un rápido desarrollo recientemente.',
@@ -29,17 +20,35 @@ default_text_dict = {
 }
 app = Flask(__name__)
 
-@app.route('/api/speek')
-def speek():
-     texts = request.form.get("texts")
-     response = Response()
-     if texts != "":
-         response.headers['Content-Type'] = 'audio/wav'
-         audio = synthesize("ZH", texts, 1, "ZH")
-         response.stream.write(audio)
-         return response
-     else:
-        return Response(status=404)
+def generate_md5(text):
+    md5_hash = hashlib.md5()
+    md5_hash.update(text.encode('utf-8'))
+    return md5_hash.hexdigest()
+
+@app.route('/api/speechSynthesis',methods=['POST'])
+def speechSynthesis():
+        texts = request.form.get("texts")
+        hashCode = generate_md5(texts)
+        response = Response()
+        response.headers['Content-Type'] = 'audio/wav'
+        cacheFile = os.path.join(cache_dir, hashCode + '.wav')
+        if os.path.exists(cacheFile):
+            with open(cacheFile) as f:
+                chunk_size = 1024
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    response.stream.write(chunk)
+
+        if texts != "":
+            audio = synthesize("ZH", texts, 1, "ZH")
+            with open(cacheFile) as f:
+                f.write(audio)
+            response.stream.write(audio)
+            return response
+        else:
+            return Response(status=404)
 
 
 
