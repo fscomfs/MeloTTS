@@ -35,6 +35,7 @@ setup(
             "melotts = melo.main:main",
             "melo = melo.main:main",
             "melo-ui = melo.app:main",
+            "melo-service = melo.service:main",
         ],
     },
 )

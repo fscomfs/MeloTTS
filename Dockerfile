@@ -8,6 +8,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install -e .
 RUN python -m unidic download
-RUN python melo/init_downloads.py
+#RUN python melo/init_downloads.py
 CMD ["python", "./melo/service.py"]
 #CMD ["python", "./melo/app.py", "--host", "0.0.0.0", "--port", "8888"]
