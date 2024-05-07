@@ -6,7 +6,7 @@ from melo.api import TTS
 speed = 1.0
 device = 'auto'
 models = {
-    'ZH': TTS(language='ZH', device=device,ckpt_path='./model/zh/checkpoint.pth',config_path='./model/zh/config.json'),
+    'ZH': TTS(language='ZH', device=device, ckpt_path='/app/melo/model/zh/checkpoint.pth', config_path='/app/melo/model/zh/config.json')
 }
 speaker_ids = models['ZH'].hps.data.spk2id
 cache_dir = "/data/chache/"
@@ -33,17 +33,17 @@ def speechSynthesis():
         response.headers['Content-Type'] = 'audio/wav'
         cacheFile = os.path.join(cache_dir, hashCode + '.wav')
         if os.path.exists(cacheFile):
-            with open(cacheFile) as f:
+            with open(cacheFile,'rb') as f:
                 chunk_size = 1024
                 while True:
                     chunk = f.read(chunk_size)
                     if not chunk:
                         break
                     response.stream.write(chunk)
-
+            return response
         if texts != "":
             audio = synthesize("ZH", texts, 1, "ZH")
-            with open(cacheFile) as f:
+            with open(cacheFile, 'wb') as f:
                 f.write(audio)
             response.stream.write(audio)
             return response

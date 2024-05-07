@@ -1,14 +1,6 @@
-FROM python:3.9-slim
+FROM 192.168.1.76:8099/evtrain/melo:v1.0
 WORKDIR /app
+RUN rm -rf /app/*
 COPY . /app
-
-RUN apt-get update && apt-get install -y \
-    build-essential libsndfile1 wget \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip install -e .
-RUN python -m unidic download
-RUN wget http://192.168.1.76:9008/test/checkpoint.pth -O /app/melo/model/zh/checkpoint.pth
-#RUN python melo/init_downloads.py
+RUN pip install flask && wget http://192.168.1.76:9008/test/checkpoint.pth -O /app/melo/model/zh/checkpoint.pth
 CMD ["python", "./melo/service.py"]
-#CMD ["python", "./melo/app.py", "--host", "0.0.0.0", "--port", "8888"]

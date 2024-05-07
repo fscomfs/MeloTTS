@@ -65,3 +65,6 @@ This library is under MIT License, which means it is free for both commercial an
 ## Acknowledgements
 
 This implementation is based on [TTS](https://github.com/coqui-ai/TTS), [VITS](https://github.com/jaywalnut310/vits), [VITS2](https://github.com/daniilrobnikov/vits2) and [Bert-VITS2](https://github.com/fishaudio/Bert-VITS2). We appreciate their awesome work.
+
+## 容器启动脚本
+docker run -d --name="melo" -p 9010:9010 -e NVIDIA_VISIBLE_DEVICES=0 -v /tmp/cache:/data/cache/ 192.168.1.76:8099/evtrain/melo:v1.3 bash -c "python /app/melo/service.py"
